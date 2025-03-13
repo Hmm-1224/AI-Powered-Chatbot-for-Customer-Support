@@ -1,11 +1,22 @@
-import os
 from flask import Flask, render_template, request, jsonify
 import openai
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Check if the API key is loaded properly
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    print("API Key not found!")
+else:
+    print("API Key loaded successfully.")
+
+# Set OpenAI API key from environment variable
+openai.api_key = api_key
 
 app = Flask(__name__)
-
-# Set your OpenAI API key
-openai.api_key = 'YOUR_API_KEY'
 
 @app.route('/')
 def index():
@@ -13,20 +24,29 @@ def index():
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    user_input = request.form['message']
-    
-    # Send the user input to OpenAI's GPT-3 model
-    response = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=[
-            {'role': 'user', 'content': user_input}
-        ]
-    )
-    
-    # Extract the response from the OpenAI API
-    bot_reply = response.choices[0].message['content']
-    return jsonify({'response': bot_reply})
+    try:
+        # Get the user's message from the request JSON (instead of form data)
+        user_message = request.json.get('message')  # Using JSON data
+
+        if not user_message:
+            return jsonify({"response": "No message received."})
+
+        # OpenAI API call with gpt-3.5-turbo or gpt-4 using the chat-based format
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # or "gpt-4"
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": user_message},
+            ],
+        )
+
+        # Extract the response from OpenAI
+        bot_response = response['choices'][0]['message']['content'].strip()
+
+        return jsonify({"response": bot_response})
+
+    except Exception as e:
+        return jsonify({"response": f"An error occurred: {str(e)}"})
 
 if __name__ == '__main__':
     app.run(debug=True)
-
