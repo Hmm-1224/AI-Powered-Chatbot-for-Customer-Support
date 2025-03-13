@@ -14,7 +14,8 @@ This is a simple customer support chatbot developed using Flask and integrated w
 Before you begin, ensure you have met the following requirements:
 
 - Python 3.x installed on your machine.
-- An OpenAI API key. You can obtain it by signing up at [OpenAI](https://openai.com/).
+- An OpenAI API key. You can obtain it by signing up at [OpenAI](https://openai.com/)
+- set API  key on your terminal
 
 ## Installation
 
