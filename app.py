@@ -18,11 +18,13 @@ def index():
 @app.route('/ask', methods=['POST'])
 def ask():
     try:
-        user_message = request.form['message']
+        # Use request.json to access the JSON data sent from the front end
+        user_message = request.json.get('message')
 
         if not user_message:
             return jsonify({"response": "No message provided."})
 
+        # Make a request to OpenAI API
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -31,6 +33,7 @@ def ask():
             ]
         )
 
+        # Extract bot response from OpenAI API
         bot_response = response['choices'][0]['message']['content'].strip()
         return jsonify({"response": bot_response})
 
